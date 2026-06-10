@@ -1,0 +1,22 @@
+export const QUOTES = [
+  "The best way to predict the future is to invent it.",
+  "Talk is cheap. Show me the code.",
+  "First, solve the problem. Then, write the code.",
+  "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+  "Programs must be written for people to read, and only incidentally for machines to execute.",
+  "The only way to learn a new programming language is by writing programs in it.",
+  "It works on my machine.",
+  "Simplicity is the soul of efficiency.",
+  "Make it work, make it right, make it fast.",
+  "Code is like humor. When you have to explain it, it's bad.",
+  "Clean code always looks like it was written by someone who cares.",
+  "Programming isn't about what you know; it's about what you can figure out.",
+  "The most dangerous phrase in the language is, we've always done it this way.",
+  "Move fast and break things. Unless you are breaking stuff, you are not moving fast enough.",
+  "Your most unhappy customers are your greatest source of learning.",
+  "The best time to plant a tree was 20 years ago. The second best time is now.",
+  "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+  "Start where you are. Use what you have. Do what you can.",
+  "The secret of getting ahead is getting started.",
+  "Done is better than perfect."
+];
