@@ -1,77 +1,47 @@
-import { QUOTES } from '../data/quotes';
+import React from 'react'
+import { QUOTES } from '../data/quotes'
 
-export default function SummaryCard({
-  date,
-  summaryText,
-  totalAdditions,
-  totalDeletions,
-  commitCount,
-  repoCount,
-  isEmpty,
-  onViewDay,
-}) {
-  function getQuoteIndex(dateStr) {
-    let sum = 0;
-    for (const ch of dateStr) sum += ch.charCodeAt(0);
-    return sum % QUOTES.length;
-  }
+const formatDate = (dateStr) => {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+}
 
-  function formatDate(dateStr) {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    });
-  }
+const getQuote = (dateStr) => {
+  const sum = dateStr.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+  return QUOTES[sum % QUOTES.length]
+}
+
+export default function SummaryCard({ date, commits, isEmpty }) {
+  const additions = commits.reduce((s, c) => s + c.additions, 0)
+  const deletions = commits.reduce((s, c) => s + c.deletions, 0)
+  const repos = [...new Set(commits.map((c) => c.repo))]
 
   return (
     <div style={{
-      padding: '16px',
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
+      padding: '20px', marginBottom: '12px',
+      background: isEmpty ? 'transparent' : 'var(--surface)',
+      border: `1px solid var(--border)`,
+      borderRadius: 'var(--radius)', opacity: isEmpty ? 0.5 : 1
     }}>
-      <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>
-        {formatDate(date)}
-      </h3>
+      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>{formatDate(date)}</p>
       {isEmpty ? (
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontStyle: 'italic' }}>
-          No footage today.<br />
-          <span style={{ opacity: 0.7 }}>\"{QUOTES[getQuoteIndex(date)]}\"</span>
-        </p>
+        <>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '12px' }}>No footage today.</p>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>{getQuote(date)}</p>
+        </>
       ) : (
         <>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', marginBottom: '8px' }}>
-            <span>{commitCount} commits</span>
-            <span>
-              <span style={{ color: 'var(--accent)' }}>+{totalAdditions}</span>
-              {' / '}
-              <span style={{ color: 'var(--danger)' }}>-{totalDeletions}</span>
-            </span>
-            <span>{repoCount} repos</span>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{commits.length} commits</span>
+            <span style={{ fontSize: '12px', color: 'var(--accent)' }}>+{additions}</span>
+            <span style={{ fontSize: '12px', color: 'var(--danger)' }}>-{deletions}</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{repos.length} repo{repos.length !== 1 ? 's' : ''}</span>
           </div>
-          {summaryText && (
-            <p style={{ fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '8px' }}>
-              {summaryText}
-            </p>
-          )}
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            AI summary coming soon.
+          </p>
         </>
       )}
-      {!isEmpty && (
-        <button
-          onClick={() => onViewDay(date)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            fontSize: '0.8rem',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          View commits →
-        </button>
-      )}
     </div>
-  );
+  )
 }

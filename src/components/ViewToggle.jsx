@@ -1,33 +1,25 @@
+import React from 'react'
+
 export default function ViewToggle({ view, onToggle }) {
-  const options = ['log', 'summary'];
+  const btn = (label, val) => ({
+    padding: '6px 18px',
+    borderRadius: '20px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: '500',
+    transition: 'all 0.15s',
+    background: view === val ? 'var(--surface)' : 'transparent',
+    color: view === val ? 'var(--accent)' : 'var(--text-muted)',
+  })
+
   return (
     <div style={{
-      display: 'inline-flex',
-      background: 'var(--surface)',
-      borderRadius: 'var(--radius)',
-      padding: '3px',
-      gap: '2px',
+      display: 'inline-flex', background: 'var(--bg)',
+      border: '1px solid var(--border)', borderRadius: '24px', padding: '3px'
     }}>
-      {options.map((opt) => (
-        <button
-          key={opt}
-          onClick={() => onToggle(opt)}
-          style={{
-            padding: '6px 16px',
-            borderRadius: 'var(--radius)',
-            border: 'none',
-            background: view === opt ? 'var(--border)' : 'transparent',
-            color: view === opt ? 'var(--accent)' : 'var(--text-muted)',
-            fontSize: '0.8rem',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'all 0.15s ease',
-            textTransform: 'capitalize',
-          }}
-        >
-          {opt}
-        </button>
-      ))}
+      <button style={btn('Log', 'log')} onClick={() => onToggle('log')}>Log</button>
+      <button style={btn('Summary', 'summary')} onClick={() => onToggle('summary')}>Summary</button>
     </div>
-  );
+  )
 }

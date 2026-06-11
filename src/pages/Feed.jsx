@@ -1,14 +1,8 @@
-import { useState } from 'react';
-import TokenGate from '../components/TokenGate';
-import FeedLayout from '../components/FeedLayout';
-import { getToken } from '../lib/github';
+import React, { useState } from 'react'
+import TokenGate from '../components/TokenGate'
+import FeedLayout from '../components/FeedLayout'
 
 export default function Feed() {
-  const [hasToken, setHasToken] = useState(() => !!getToken());
-
-  if (!hasToken) {
-    return <TokenGate onSuccess={() => setHasToken(true)} />;
-  }
-
-  return <FeedLayout />;
+  const [authed, setAuthed] = useState(!!localStorage.getItem('dailies_pat'))
+  return authed ? <FeedLayout /> : <TokenGate onSuccess={() => setAuthed(true)} />
 }

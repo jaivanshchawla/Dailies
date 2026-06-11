@@ -1,60 +1,49 @@
-export default function CommitCard({ commit }) {
-  const relativeTime = (dateStr) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-  };
+import React from 'react'
 
+const timeAgo = (dateStr) => {
+  const diff = Date.now() - new Date(dateStr)
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  return `${Math.floor(h / 24)}d ago`
+}
+
+export default function CommitCard({ commit }) {
   return (
     <div style={{
-      padding: '12px 16px',
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
+      padding: '14px 0', borderBottom: '1px solid var(--border)',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          {commit.repo}
-          {commit.repoPrivate && ' 🔒'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          {commit.repo} {commit.repoPrivate ? '🔒' : ''}
         </span>
         <span style={{
-          padding: '2px 8px',
-          borderRadius: 'var(--radius)',
-          fontSize: '0.7rem',
-          fontWeight: 500,
-          background: commit.isAgent ? 'rgba(247, 111, 111, 0.15)' : 'rgba(79, 142, 247, 0.15)',
-          color: commit.isAgent ? 'var(--danger)' : 'var(--accent)',
+          fontSize: '11px', padding: '2px 7px', borderRadius: '10px',
+          background: commit.isAgent ? '#2a1515' : '#0f1f2e',
+          color: commit.isAgent ? 'var(--danger)' : 'var(--accent)'
         }}>
           {commit.isAgent ? 'Second unit' : 'You'}
         </span>
       </div>
-      <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '6px', lineHeight: 1.4 }}>
-        {commit.message.split('\n')[0]}
+      <p style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', lineHeight: '1.4' }}>
+        {commit.message}
       </p>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.8rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
         <a
-          href={`https://github.com/${commit.repo}/commit/${commit.sha}`}
+          href={commit.url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noreferrer"
           className="mono"
-          style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
+          style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'none' }}
         >
           {commit.shortSha}
         </a>
-        <span>
-          <span style={{ color: 'var(--accent)' }}>+{commit.additions}</span>
-          {' '}
-          <span style={{ color: 'var(--danger)' }}>-{commit.deletions}</span>
-        </span>
-        <span style={{ color: 'var(--text-muted)' }}>
-          {relativeTime(commit.date)}
-        </span>
+        <span style={{ fontSize: '12px', color: 'var(--accent)' }}>+{commit.additions}</span>
+        <span style={{ fontSize: '12px', color: 'var(--danger)' }}>-{commit.deletions}</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{timeAgo(commit.date)}</span>
       </div>
     </div>
-  );
+  )
 }

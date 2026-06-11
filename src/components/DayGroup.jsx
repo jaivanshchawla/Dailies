@@ -1,63 +1,30 @@
-import { motion } from 'framer-motion';
-import CommitCard from './CommitCard';
+import React from 'react'
+import CommitCard from './CommitCard'
 
-const container = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.04,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0 },
-};
-
-function formatDate(dateStr) {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+const formatDate = (dateStr) => {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
 export default function DayGroup({ date, commits }) {
-  const totalCommits = commits.length;
-  const netLOC = commits.reduce((s, c) => s + c.additions - c.deletions, 0);
-  const sign = netLOC >= 0 ? '+' : '';
+  const additions = commits.reduce((s, c) => s + c.additions, 0)
+  const deletions = commits.reduce((s, c) => s + c.deletions, 0)
 
   return (
-    <div>
+    <div style={{ marginBottom: '32px' }}>
       <div style={{
-        position: 'sticky',
-        top: 0,
-        background: 'var(--bg)',
-        padding: '12px 0 8px',
-        zIndex: 1,
-        borderBottom: '1px solid var(--border)',
-        marginBottom: '8px',
+        display: 'flex', alignItems: 'baseline', gap: '12px',
+        padding: '8px 0', borderBottom: '1px solid var(--border)',
+        marginBottom: '4px', position: 'sticky', top: '0', background: 'var(--bg)', zIndex: 1
       }}>
-        <h3 style={{ fontSize: '0.9rem', fontWeight: 600 }}>
-          {formatDate(date)}
-        </h3>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          {totalCommits} commits · {sign}{netLOC} LOC
-        </p>
+        <span style={{ fontSize: '13px', fontWeight: '600' }}>{formatDate(date)}</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          {commits.length} commit{commits.length !== 1 ? 's' : ''}
+        </span>
+        <span style={{ fontSize: '12px', color: 'var(--accent)' }}>+{additions}</span>
+        <span style={{ fontSize: '12px', color: 'var(--danger)' }}>-{deletions}</span>
       </div>
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
-      >
-        {commits.map((commit) => (
-          <motion.div key={commit.sha} variants={item}>
-            <CommitCard commit={commit} />
-          </motion.div>
-        ))}
-      </motion.div>
+      {commits.map((c) => <CommitCard key={c.sha} commit={c} />)}
     </div>
-  );
+  )
 }
