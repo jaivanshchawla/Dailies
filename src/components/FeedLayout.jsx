@@ -1,20 +1,51 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import ViewToggle from './ViewToggle'
+import FilterBar from './FilterBar'
 import StatsBar from './StatsBar'
-import CommitFeed from './CommitFeed'
+import CommitFeed, { SkeletonCard } from './CommitFeed'
 import SummaryFeed from './SummaryFeed'
 import { useGitHubRepos } from '../hooks/useGitHubRepos'
 import { useAllCommits } from '../hooks/useAllCommits'
+import { runAutoCommit } from '../lib/autoCommit'
 
 export default function FeedLayout() {
   const [view, setView] = useState('log')
+  const [activeRepos, setActiveRepos] = useState([])
+  const [authorFilter, setAuthorFilter] = useState('all')
+  const hasAutoCommitted = useRef(false)
+
   const { data: repos = [] } = useGitHubRepos()
   const { commits, isLoading } = useAllCommits(repos)
+
+  // Auto-commit on first load
+  useEffect(() => {
+    if (!isLoading && commits.length > 0 && !hasAutoCommitted.current) {
+      hasAutoCommitted.current = true
+      runAutoCommit(commits)
+    }
+  }, [isLoading, commits])
 
   const clearToken = () => {
     localStorage.clear()
     window.location.reload()
   }
+
+  const onRepoToggle = (repo) => {
+    if (repo === 'all') return setActiveRepos([])
+    setActiveRepos(prev =>
+      prev.includes(repo) ? prev.filter(r => r !== repo) : [...prev, repo]
+    )
+  }
+
+  const filteredCommits = commits
+    .filter(c => activeRepos.length === 0 || activeRepos.includes(c.repo))
+    .filter(c => {
+      if (authorFilter === 'me') return !c.isAgent
+      if (authorFilter === 'agent') return c.isAgent
+      return true
+    })
+
+  const repoNames = [...new Set(commits.map(c => c.repo))]
 
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 16px' }}>
@@ -26,12 +57,19 @@ export default function FeedLayout() {
       <div style={{ margin: '16px 0' }}>
         <ViewToggle view={view} onToggle={setView} />
       </div>
+      <FilterBar
+        repos={repoNames}
+        activeRepos={activeRepos}
+        onRepoToggle={onRepoToggle}
+        authorFilter={authorFilter}
+        onAuthorFilter={setAuthorFilter}
+      />
       {isLoading ? (
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '40px', textAlign: 'center' }}>Loading your footage...</p>
+        <div>{Array.from({ length: 5 }, (_, i) => <SkeletonCard key={i} />)}</div>
       ) : view === 'log' ? (
-        <CommitFeed commits={commits} />
+        <CommitFeed commits={filteredCommits} />
       ) : (
-        <SummaryFeed commits={commits} />
+        <SummaryFeed commits={filteredCommits} />
       )}
     </div>
   )
