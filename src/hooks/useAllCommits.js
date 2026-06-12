@@ -21,16 +21,18 @@ const normalise = (commit, repo, repoPrivate) => {
 export const useAllCommits = (repos = []) => {
   const username = getUsername()
 
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
   const results = useQueries({
     queries: repos.map((repo) => ({
       queryKey: ['commits', repo.full_name],
       queryFn: async () => {
         const commits = await githubFetch(
-          `/repos/${repo.full_name}/commits?author=${username}&per_page=50`
+          `/repos/${repo.full_name}/commits?author=${username}&per_page=100&since=${since}`
         )
         return commits.map((c) => normalise(c, repo.name, repo.private))
       },
-      enabled: !!username && !!localStorage.getItem('dailies_pat'),
+      enabled: repos.length > 0 && !!username && !!localStorage.getItem('dailies_pat'),
     })),
   })
 
