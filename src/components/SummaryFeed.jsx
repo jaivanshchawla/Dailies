@@ -6,7 +6,14 @@ export default function SummaryFeed({ commits }) {
   const grouped = groupByDay(commits)
   const keys = sortedDayKeys(grouped)
 
-  if (!keys.length) return (
+  // Generate last 30 days
+  const allDays = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    return d.toISOString().slice(0, 10)
+  })
+
+  if (!allDays.length) return (
     <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '40px', textAlign: 'center' }}>
       No data yet.
     </p>
@@ -14,8 +21,13 @@ export default function SummaryFeed({ commits }) {
 
   return (
     <div>
-      {keys.map((day) => (
-        <SummaryCard key={day} date={day} commits={grouped[day]} isEmpty={grouped[day].length === 0} />
+      {allDays.map((day) => (
+        <SummaryCard
+          key={day}
+          date={day}
+          commits={grouped[day] || []}
+          isEmpty={!grouped[day] || grouped[day].length === 0}
+        />
       ))}
     </div>
   )
