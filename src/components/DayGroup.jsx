@@ -12,10 +12,11 @@ export default function DayGroup({ date, commits }) {
 
   return (
     <div style={{ marginBottom: '32px' }}>
-      <div style={{
+      <div className="glass-pill" style={{
         display: 'flex', alignItems: 'baseline', gap: '12px',
-        padding: '8px 0', borderBottom: '1px solid var(--border)',
-        marginBottom: '4px', position: 'sticky', top: '0', background: 'var(--bg)', zIndex: 1
+        padding: '8px 16px', marginBottom: '8px',
+        position: 'sticky', top: '0', zIndex: 1,
+        borderRadius: 'var(--radius)',
       }}>
         <span style={{ fontSize: '13px', fontWeight: '600' }}>{formatDate(date)}</span>
         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
