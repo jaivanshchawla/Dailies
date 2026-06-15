@@ -25,6 +25,7 @@ export default function LoginScreen() {
     try {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_github',
+        redirectUrl: '/sso-callback',
         redirectUrlComplete: '/',
       })
     } catch (err) {
