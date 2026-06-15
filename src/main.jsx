@@ -31,7 +31,6 @@ console.log('[DAILIES] 🔑 Clerk config:', {
   keyDefined: !!PUBLISHABLE_KEY,
   envVars: {
     VITE_CLERK_PUBLISHABLE_KEY: PUBLISHABLE_KEY ? 'SET' : 'UNDEFINED',
-    CLERK_SECRET_KEY: typeof process !== 'undefined' && process.env?.CLERK_SECRET_KEY ? 'SET (server)' : 'N/A (client)',
   },
 })
 
@@ -45,7 +44,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       publishableKey={PUBLISHABLE_KEY}
       afterSignOutUrl="/"
       routing="virtual"
-      logger={(msg) => console.log('[DAILIES] 🏛️ ClerkProvider:', msg)}
     >
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>

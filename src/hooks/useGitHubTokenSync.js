@@ -29,7 +29,6 @@ export const useGitHubTokenSync = () => {
         console.log('[DAILIES] 🔑 Session token obtained:', {
           exists: !!sessionToken,
           length: sessionToken?.length,
-          prefix: sessionToken ? sessionToken.substring(0, 20) + '...' : 'NONE',
         })
 
         if (!sessionToken) {
