@@ -17,11 +17,9 @@ export default function SummaryCard({ date, commits, isEmpty }) {
   const repos = [...new Set(commits.map((c) => c.repo))]
 
   return (
-    <div style={{
+    <div className="glass-panel-strong" style={{
       padding: '20px', marginBottom: '12px',
-      background: isEmpty ? 'transparent' : 'var(--surface)',
-      border: `1px solid var(--border)`,
-      borderRadius: 'var(--radius)', opacity: isEmpty ? 0.5 : 1
+      opacity: isEmpty ? 0.5 : 1
     }}>
       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>{formatDate(date)}</p>
       {isEmpty ? (
