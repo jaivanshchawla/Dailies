@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useClerk } from '@clerk/clerk-react'
 import ViewToggle from './ViewToggle'
-import FilterBar from './FilterBar'
 import StatsBar from './StatsBar'
-import CommitFeed, { SkeletonCard } from './CommitFeed'
+import CommitFeed from './CommitFeed'
 import SummaryFeed from './SummaryFeed'
+import FilterBar from './FilterBar'
+import { SkeletonCard } from './CommitFeed'
 import { useGitHubRepos } from '../hooks/useGitHubRepos'
 import { useAllCommits } from '../hooks/useAllCommits'
 import { runAutoCommit } from '../lib/autoCommit'
@@ -12,12 +14,11 @@ export default function FeedLayout() {
   const [view, setView] = useState('log')
   const [activeRepos, setActiveRepos] = useState([])
   const [authorFilter, setAuthorFilter] = useState('all')
-  const hasAutoCommitted = useRef(false)
-
+  const { signOut } = useClerk()
   const { data: repos = [] } = useGitHubRepos()
   const { commits, isLoading } = useAllCommits(repos)
+  const hasAutoCommitted = useRef(false)
 
-  // Auto-commit on first load
   useEffect(() => {
     if (!isLoading && commits.length > 0 && !hasAutoCommitted.current) {
       hasAutoCommitted.current = true
@@ -25,16 +26,10 @@ export default function FeedLayout() {
     }
   }, [isLoading, commits])
 
-  const clearToken = () => {
-    localStorage.clear()
-    window.location.reload()
-  }
-
-  const onRepoToggle = (repo) => {
-    if (repo === 'all') return setActiveRepos([])
-    setActiveRepos(prev =>
-      prev.includes(repo) ? prev.filter(r => r !== repo) : [...prev, repo]
-    )
+  const handleSignOut = () => {
+    localStorage.removeItem('dailies_pat')
+    localStorage.removeItem('dailies_username')
+    signOut()
   }
 
   const filteredCommits = commits
@@ -47,25 +42,36 @@ export default function FeedLayout() {
 
   const repoNames = [...new Set(commits.map(c => c.repo))]
 
+  const onRepoToggle = (repo) => {
+    if (repo === 'all') return setActiveRepos([])
+    setActiveRepos(prev =>
+      prev.includes(repo) ? prev.filter(r => r !== repo) : [...prev, repo]
+    )
+  }
+
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '20px', fontWeight: '600' }}>Dailies</h1>
-        <button onClick={clearToken} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '18px' }}>⚙</button>
+        <button onClick={handleSignOut} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '18px' }}>⚙</button>
       </div>
-      <StatsBar commits={commits} />
+      <StatsBar commits={filteredCommits} />
+      {repoNames.length > 1 && (
+        <FilterBar
+          repos={repoNames}
+          activeRepos={activeRepos}
+          onRepoToggle={onRepoToggle}
+          authorFilter={authorFilter}
+          onAuthorFilter={setAuthorFilter}
+        />
+      )}
       <div style={{ margin: '16px 0' }}>
         <ViewToggle view={view} onToggle={setView} />
       </div>
-      <FilterBar
-        repos={repoNames}
-        activeRepos={activeRepos}
-        onRepoToggle={onRepoToggle}
-        authorFilter={authorFilter}
-        onAuthorFilter={setAuthorFilter}
-      />
       {isLoading ? (
-        <div>{Array.from({ length: 5 }, (_, i) => <SkeletonCard key={i} />)}</div>
+        <div>
+          {[1, 2, 3, 4, 5].map(i => <SkeletonCard key={i} />)}
+        </div>
       ) : view === 'log' ? (
         <CommitFeed commits={filteredCommits} />
       ) : (
