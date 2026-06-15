@@ -1,8 +1,18 @@
-import React, { useState } from 'react'
-import TokenGate from '../components/TokenGate'
+import React from 'react'
+import { SignedIn, SignedOut } from '@clerk/clerk-react'
+import LoginScreen from '../components/LoginScreen'
 import FeedLayout from '../components/FeedLayout'
+import AuthGate from '../components/AuthGate'
 
 export default function Feed() {
-  const [authed, setAuthed] = useState(!!localStorage.getItem('dailies_pat'))
-  return authed ? <FeedLayout /> : <TokenGate onSuccess={() => setAuthed(true)} />
+  return (
+    <>
+      <SignedOut>
+        <LoginScreen />
+      </SignedOut>
+      <SignedIn>
+        <AuthGate />
+      </SignedIn>
+    </>
+  )
 }
