@@ -17,18 +17,43 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  console.log('[DAILIES] 🖥️ LoginScreen rendered:', { isLoaded, loading, error })
+
   const handleGitHubLogin = async () => {
-    if (!isLoaded || loading) return
+    console.log('[DAILIES] 🔵 GitHub button clicked')
+    console.log('[DAILIES] 🔵 signIn object:', { exists: !!signIn, isLoaded })
+    if (!isLoaded) {
+      console.error('[DAILIES] ❌ Clerk not loaded yet')
+      return
+    }
+    if (loading) {
+      console.warn('[DAILIES] ⚠️ Already loading, skipping')
+      return
+    }
+
     setLoading(true)
     setError('')
+    console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
+      strategy: 'oauth_github',
+      redirectUrl: '/sso-callback',
+      redirectUrlComplete: '/',
+      currentUrl: window.location.href,
+    })
 
     try {
-      await signIn.authenticateWithRedirect({
+      const result = await signIn.authenticateWithRedirect({
         strategy: 'oauth_github',
         redirectUrl: '/sso-callback',
         redirectUrlComplete: '/',
       })
+      console.log('[DAILIES] ✅ authenticateWithRedirect succeeded:', result)
     } catch (err) {
+      console.error('[DAILIES] ❌ authenticateWithRedirect FAILED:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name,
+        cause: err.cause,
+      })
       setError('Failed to start GitHub authentication. Please try again.')
       setLoading(false)
     }

@@ -6,6 +6,15 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import App from './App'
 import './index.css'
 
+console.log('[DAILIES] 🚀 App starting...', {
+  pathname: window.location.pathname,
+  href: window.location.href,
+  origin: window.location.origin,
+  search: window.location.search,
+  hash: window.location.hash,
+  timestamp: new Date().toISOString(),
+})
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -17,9 +26,27 @@ const queryClient = new QueryClient({
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
+console.log('[DAILIES] 🔑 Clerk config:', {
+  keyPrefix: PUBLISHABLE_KEY ? PUBLISHABLE_KEY.substring(0, 12) + '...' : 'MISSING',
+  keyDefined: !!PUBLISHABLE_KEY,
+  envVars: {
+    VITE_CLERK_PUBLISHABLE_KEY: PUBLISHABLE_KEY ? 'SET' : 'UNDEFINED',
+    CLERK_SECRET_KEY: typeof process !== 'undefined' && process.env?.CLERK_SECRET_KEY ? 'SET (server)' : 'N/A (client)',
+  },
+})
+
+if (!PUBLISHABLE_KEY) {
+  console.error('[DAILIES] ❌ CRITICAL: VITE_CLERK_PUBLISHABLE_KEY is undefined! Check .env.local')
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" routing="virtual">
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      afterSignOutUrl="/"
+      routing="virtual"
+      logger={(msg) => console.log('[DAILIES] 🏛️ ClerkProvider:', msg)}
+    >
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <App />
@@ -28,3 +55,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ClerkProvider>
   </React.StrictMode>
 )
+
+console.log('[DAILIES] ✅ React root rendered')
