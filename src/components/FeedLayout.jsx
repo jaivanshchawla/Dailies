@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useClerk } from '@clerk/clerk-react'
+import ThemeToggle from './ThemeToggle'
 import ViewToggle from './ViewToggle'
 import StatsBar from './StatsBar'
 import CommitFeed from './CommitFeed'
@@ -53,7 +54,10 @@ export default function FeedLayout() {
     <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '20px', fontWeight: '600' }}>Dailies</h1>
-        <button onClick={handleSignOut} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '18px' }}>⚙</button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <ThemeToggle />
+          <button onClick={handleSignOut} className="glass-pill" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none', color: 'var(--text-primary)', fontSize: '18px' }}>⚙</button>
+        </div>
       </div>
       <StatsBar commits={filteredCommits} />
       {repoNames.length > 1 && (
