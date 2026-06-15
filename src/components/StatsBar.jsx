@@ -15,11 +15,11 @@ export default function StatsBar({ commits }) {
   )
 
   return (
-    <div style={{ display: 'flex', gap: '16px', padding: '12px 0', flexWrap: 'wrap' }}>
+    <div className="glass-panel" style={{ display: 'flex', gap: '16px', padding: '12px 16px', flexWrap: 'wrap' }}>
       {stat('commits this week', thisWeek.length)}
-      <span style={{ color: 'var(--border)' }}>·</span>
+      <span style={{ color: 'var(--glass-border)' }}>·</span>
       {stat('added', `+${additions.toLocaleString()}`)}
-      <span style={{ color: 'var(--border)' }}>·</span>
+      <span style={{ color: 'var(--glass-border)' }}>·</span>
       {stat('removed', `-${deletions.toLocaleString()}`)}
     </div>
   )
