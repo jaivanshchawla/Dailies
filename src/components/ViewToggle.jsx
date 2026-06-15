@@ -9,17 +9,16 @@ export default function ViewToggle({ view, onToggle }) {
     fontSize: '13px',
     fontWeight: '500',
     transition: 'all 0.15s',
-    background: view === val ? 'var(--surface)' : 'transparent',
+    background: view === val ? 'var(--glass-bg-strong)' : 'transparent',
     color: view === val ? 'var(--accent)' : 'var(--text-muted)',
   })
 
   return (
-    <div style={{
-      display: 'inline-flex', background: 'var(--bg)',
-      border: '1px solid var(--border)', borderRadius: '24px', padding: '3px'
+    <div className="glass-pill" style={{
+      display: 'inline-flex', padding: '3px'
     }}>
-      <button style={btn('Log', 'log')} onClick={() => onToggle('log')}>Log</button>
-      <button style={btn('Summary', 'summary')} onClick={() => onToggle('summary')}>Summary</button>
+      <button className={view === 'log' ? 'glass-pill active' : ''} style={btn('Log', 'log')} onClick={() => onToggle('log')}>Log</button>
+      <button className={view === 'summary' ? 'glass-pill active' : ''} style={btn('Summary', 'summary')} onClick={() => onToggle('summary')}>Summary</button>
     </div>
   )
 }
