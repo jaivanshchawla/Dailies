@@ -12,8 +12,8 @@ const timeAgo = (dateStr) => {
 
 export default function CommitCard({ commit }) {
   return (
-    <div style={{
-      padding: '14px 0', borderBottom: '1px solid var(--border)',
+    <div className="glass-panel" style={{
+      padding: '14px 16px', marginBottom: '10px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
