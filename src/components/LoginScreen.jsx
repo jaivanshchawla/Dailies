@@ -32,12 +32,13 @@ export default function LoginScreen() {
     }
 
     setLoading(true)
-    setError('')      console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
-        strategy: 'oauth_github',
-        redirectUrl: window.location.origin + '/sso-callback',
-        redirectUrlComplete: window.location.origin + '/',
-        currentUrl: window.location.href,
-      })
+    setError('')
+    console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
+      strategy: 'oauth_github',
+      redirectUrl: window.location.origin + '/sso-callback',
+      redirectUrlComplete: window.location.origin + '/',
+      currentUrl: window.location.href,
+    })
 
     try {
       const callbackUrl = window.location.origin + '/sso-callback'
