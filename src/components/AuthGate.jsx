@@ -7,10 +7,6 @@ export default function AuthGate() {
   const { ready, error } = useGitHubTokenSync()
   const [preloaderDone, setPreloaderDone] = useState(false)
 
-  if (!preloaderDone && !error) {
-    return <Preloader onComplete={() => setPreloaderDone(true)} />
-  }
-
   if (error) {
     return (
       <div style={{
@@ -49,6 +45,10 @@ export default function AuthGate() {
         </div>
       </div>
     )
+  }
+
+  if (!preloaderDone || !ready) {
+    return <Preloader onComplete={() => setPreloaderDone(true)} />
   }
 
   return <FeedLayout />
