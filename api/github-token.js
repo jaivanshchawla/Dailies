@@ -1,4 +1,4 @@
-import { createClerkClient } from '@clerk/backend'
+import { createClerkClient, verifyToken } from '@clerk/backend'
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
@@ -16,22 +16,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const payload = await clerkClient.verifyToken(sessionToken)
+    const payload = await verifyToken(sessionToken, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    })
+
     const userId = payload.sub
 
-    const tokens = await clerkClient.users.getUserOauthAccessToken(userId, 'oauth_github')
+    const [tokens, user] = await Promise.all([
+      clerkClient.users.getUserOauthAccessToken(userId, 'oauth_github'),
+      clerkClient.users.getUser(userId),
+    ])
+
     const githubToken = tokens?.data?.[0]?.token
 
     if (!githubToken) {
-      return res.status(404).json({ error: 'No GitHub token found for this user' })
+      return res.status(404).json({ error: 'No GitHub token found. Ensure the GitHub OAuth connection has repo scope enabled in Clerk.' })
     }
 
-    const user = await clerkClient.users.getUser(userId)
     const githubAccount = user.externalAccounts.find(a => a.provider === 'oauth_github')
 
     return res.status(200).json({
       token: githubToken,
-      username: githubAccount?.username || githubAccount?.externalId || null,
+      username: githubAccount?.username ?? githubAccount?.externalId ?? null,
     })
   } catch (err) {
     return res.status(401).json({ error: 'Invalid session', detail: err.message })
