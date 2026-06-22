@@ -2,20 +2,24 @@ import React from 'react'
 import { AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import Feed from './pages/Feed'
 
+const spinKeyframes = `@keyframes spin { to { transform: rotate(360deg); } }`
+
 export default function App() {
   const path = window.location.pathname
 
   if (path === '/sso-callback') {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        gap: '16px',
-      }}>
+      <>
+        <style>{spinKeyframes}</style>
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--bg)',
+          gap: '16px',
+        }}>
         <div style={{
           width: '40px',
           height: '40px',
@@ -32,13 +36,13 @@ export default function App() {
           Completing sign-in…
         </p>
         <AuthenticateWithRedirectCallback />
-      </div>
+        </div>
+      </>
     )
   }
 
   return (
     <>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div className="app-background">
         <div className="blob-3" />
       </div>
