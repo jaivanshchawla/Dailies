@@ -17,46 +17,23 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  console.log('[DAILIES] 🖥️ LoginScreen rendered:', { isLoaded, loading, error })
-
   const handleGitHubLogin = async () => {
-    console.log('[DAILIES] 🔵 GitHub button clicked')
-    console.log('[DAILIES] 🔵 signIn object:', { exists: !!signIn, isLoaded })
-    if (!isLoaded) {
-      console.error('[DAILIES] ❌ Clerk not loaded yet')
-      return
-    }
-    if (loading) {
-      console.warn('[DAILIES] ⚠️ Already loading, skipping')
-      return
-    }
+    if (!isLoaded || loading) return
 
     setLoading(true)
     setError('')
-    console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
-      strategy: 'oauth_github',
-      redirectUrl: window.location.origin + '/sso-callback',
-      redirectUrlComplete: window.location.origin + '/',
-      currentUrl: window.location.href,
-    })
 
     try {
       const callbackUrl = window.location.origin + '/sso-callback'
-      console.log('[DAILIES] 🔵 Full callback URL:', callbackUrl)
+      console.log(`[Dailies] 🔵 OAuth redirect → ${callbackUrl}`)
 
-      const result = await signIn.authenticateWithRedirect({
+      await signIn.authenticateWithRedirect({
         strategy: 'oauth_github',
         redirectUrl: callbackUrl,
         redirectUrlComplete: window.location.origin + '/',
       })
-      console.log('[DAILIES] ✅ authenticateWithRedirect succeeded:', result)
     } catch (err) {
-      console.error('[DAILIES] ❌ authenticateWithRedirect FAILED:', {
-        message: err.message,
-        stack: err.stack,
-        name: err.name,
-        cause: err.cause,
-      })
+      console.error('[Dailies] ❌ OAuth redirect failed:', err.message)
       setError('Failed to start GitHub authentication. Please try again.')
       setLoading(false)
     }
@@ -128,7 +105,7 @@ export default function LoginScreen() {
                 className="flex flex-col items-center gap-4"
               >
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--accent)' }} />
-                <p className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Connecting to GitHub...</p>
+                <p className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Connecting to GitHub…</p>
               </motion.div>
             )}
           </AnimatePresence>
