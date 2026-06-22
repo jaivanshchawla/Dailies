@@ -32,19 +32,21 @@ export default function LoginScreen() {
     }
 
     setLoading(true)
-    setError('')
-    console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
-      strategy: 'oauth_github',
-      redirectUrl: '/sso-callback',
-      redirectUrlComplete: '/',
-      currentUrl: window.location.href,
-    })
+    setError('')      console.log('[DAILIES] 🔵 Calling authenticateWithRedirect:', {
+        strategy: 'oauth_github',
+        redirectUrl: window.location.origin + '/sso-callback',
+        redirectUrlComplete: window.location.origin + '/',
+        currentUrl: window.location.href,
+      })
 
     try {
+      const callbackUrl = window.location.origin + '/sso-callback'
+      console.log('[DAILIES] 🔵 Full callback URL:', callbackUrl)
+
       const result = await signIn.authenticateWithRedirect({
         strategy: 'oauth_github',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/',
+        redirectUrl: callbackUrl,
+        redirectUrlComplete: window.location.origin + '/',
       })
       console.log('[DAILIES] ✅ authenticateWithRedirect succeeded:', result)
     } catch (err) {
