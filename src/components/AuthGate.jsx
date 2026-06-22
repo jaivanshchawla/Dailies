@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useGitHubTokenSync } from '../hooks/useGitHubTokenSync'
 import FeedLayout from './FeedLayout'
+import Preloader from './Preloader'
 
 export default function AuthGate() {
   const { ready, error } = useGitHubTokenSync()
+  const [preloaderDone, setPreloaderDone] = useState(false)
+
+  if (!preloaderDone && !error) {
+    return <Preloader onComplete={() => setPreloaderDone(true)} />
+  }
 
   if (error) {
     return (
@@ -41,32 +47,6 @@ export default function AuthGate() {
             Try again
           </button>
         </div>
-      </div>
-    )
-  }
-
-  if (!ready) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        gap: '12px',
-      }}>
-        <div style={{
-          width: '32px',
-          height: '32px',
-          border: '2px solid var(--glass-border)',
-          borderTopColor: 'var(--accent)',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-        }} />
-        <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
-          Syncing GitHub data…
-        </p>
       </div>
     )
   }
