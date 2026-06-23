@@ -23,11 +23,10 @@ const fetchStats = async (repoFullName, sha) => {
   try {
     const detail = await githubFetch(`/repos/${repoFullName}/commits/${sha}`)
     if (detail.stats) {
-      console.log(`[dailies] stats for ${sha.slice(0, 7)}:`, detail.stats)
       return { additions: detail.stats.additions, deletions: detail.stats.deletions }
     }
-  } catch (e) {
-    console.warn(`[dailies] stats fetch failed for ${sha.slice(0, 7)}:`, e.message)
+  } catch {
+    // stats fetch failed — fall back to list endpoint defaults
   }
   return null
 }
@@ -44,13 +43,6 @@ export const useAllCommits = (repos = []) => {
         const commits = await githubFetch(
           `/repos/${repo.full_name}/commits?author=${username}&per_page=100&since=${since}`
         )
-
-        // Log a sample commit to verify field names
-        if (commits.length > 0) {
-          const sample = commits[0]
-          console.log('[dailies] sample commit fields:', JSON.stringify(sample, null, 2))
-          console.log('[dailies] stats present:', !!sample.stats, 'additions:', sample.stats?.additions, 'deletions:', sample.stats?.deletions)
-        }
 
         // Fetch accurate per-commit stats in batches to avoid rate limits
         const BATCH_SIZE = 8

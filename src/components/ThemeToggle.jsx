@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
@@ -6,6 +6,10 @@ import { useTheme } from '../contexts/ThemeContext'
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
   const buttonRef = useRef(null)
+
+  useEffect(() => {
+    return () => gsap.killTweensOf(buttonRef.current)
+  }, [])
 
   const handleToggle = () => {
     gsap.killTweensOf(buttonRef.current)
