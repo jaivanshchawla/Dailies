@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
 import CommitCard from './CommitCard'
 
 const formatDate = (dateStr) => {
@@ -11,6 +12,23 @@ const formatDate = (dateStr) => {
 }
 
 export default function DayGroup({ date, commits, maxDayLOC = 1 }) {
+  const cardsRef = useRef(null)
+
+  useEffect(() => {
+    if (!cardsRef.current) return
+    const cards = cardsRef.current.querySelectorAll('.commit-card')
+    if (!cards.length) return
+    const tween = gsap.from(cards, {
+      opacity: 0,
+      y: 16,
+      duration: 0.4,
+      ease: 'power2.out',
+      stagger: 0.05,
+      clearProps: 'all',
+    })
+    return () => tween.kill()
+  }, [commits])
+
   const additions = commits.reduce((s, c) => s + (c.additions ?? 0), 0)
   const deletions = commits.reduce((s, c) => s + (c.deletions ?? 0), 0)
   const totalLOC = additions + deletions
@@ -79,7 +97,7 @@ export default function DayGroup({ date, commits, maxDayLOC = 1 }) {
           No footage.
         </p>
       ) : (
-        <div className="commit-cards-container">
+        <div ref={cardsRef} className="commit-cards-container">
           {commits.map(c => <CommitCard key={c.sha} commit={c} />)}
         </div>
       )}

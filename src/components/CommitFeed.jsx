@@ -11,8 +11,10 @@ const SkeletonCard = () => (
 )
 
 const EmptyDay = ({ date }) => {
-  const d = new Date(date)
-  const formatted = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+  const isToday = date === new Date().toISOString().slice(0, 10)
+  const isYesterday = date === new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+  const d = new Date(date + 'T00:00:00')
+  const formatted = isToday ? 'Today' : isYesterday ? 'Yesterday' : d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   return (
     <div style={{ marginBottom: '32px' }}>
       <div style={{
