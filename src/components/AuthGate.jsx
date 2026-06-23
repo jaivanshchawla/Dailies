@@ -5,7 +5,7 @@ import Preloader from './Preloader'
 
 export default function AuthGate() {
   const { ready, error } = useGitHubTokenSync()
-  const [preloaderDone, setPreloaderDone] = useState(false)
+  const [showPreloader, setShowPreloader] = useState(true)
 
   if (error) {
     return (
@@ -47,9 +47,10 @@ export default function AuthGate() {
     )
   }
 
-  if (!preloaderDone || !ready) {
-    return <Preloader onComplete={() => setPreloaderDone(true)} />
-  }
-
-  return <FeedLayout />
+  return (
+    <>
+      {showPreloader && <Preloader isComplete={ready} onDone={() => setShowPreloader(false)} />}
+      {!showPreloader && <FeedLayout />}
+    </>
+  )
 }
