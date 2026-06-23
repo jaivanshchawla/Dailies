@@ -41,6 +41,14 @@ export default function CommitFeed({ commits }) {
   const grouped = groupByDay(commits)
   const keys = sortedDayKeys(grouped)
 
+  // Compute busiest day's LOC for relative activity bars
+  const maxDayLOC = Math.max(
+    ...keys.map(day =>
+      grouped[day].reduce((s, c) => s + (c.additions ?? 0) + (c.deletions ?? 0), 0)
+    ),
+    1
+  )
+
   // Generate last 7 days for empty day fill
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date()
@@ -54,7 +62,7 @@ export default function CommitFeed({ commits }) {
     <div>
       {allKeys.map((day) =>
         grouped[day] ? (
-          <DayGroup key={day} date={day} commits={grouped[day]} />
+          <DayGroup key={day} date={day} commits={grouped[day]} maxDayLOC={maxDayLOC} />
         ) : (
           <EmptyDay key={day} date={day} />
         )
