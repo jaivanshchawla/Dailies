@@ -1,6 +1,6 @@
 import React from 'react'
 import SummaryCard from './SummaryCard'
-import { groupByDay, sortedDayKeys } from '../lib/groupByDay'
+import { groupByDay } from '../lib/groupByDay'
 
 export default function SummaryFeed({ commits }) {
   const grouped = groupByDay(commits)
