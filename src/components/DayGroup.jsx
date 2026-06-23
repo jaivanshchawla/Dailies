@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
 import CommitCard from './CommitCard'
 
 const formatDate = (dateStr) => {
@@ -7,6 +8,22 @@ const formatDate = (dateStr) => {
 }
 
 export default function DayGroup({ date, commits }) {
+  const cardsRef = useRef(null)
+
+  useEffect(() => {
+    if (!cardsRef.current) return
+    const cards = cardsRef.current.querySelectorAll('.commit-card')
+    const tween = gsap.from(cards, {
+      opacity: 0,
+      y: 16,
+      duration: 0.4,
+      ease: 'power2.out',
+      stagger: 0.05,
+      clearProps: 'all',
+    })
+    return () => tween.kill()
+  }, [])
+
   const additions = commits.reduce((s, c) => s + c.additions, 0)
   const deletions = commits.reduce((s, c) => s + c.deletions, 0)
 
@@ -25,7 +42,9 @@ export default function DayGroup({ date, commits }) {
         <span style={{ fontSize: '12px', color: 'var(--accent)' }}>+{additions}</span>
         <span style={{ fontSize: '12px', color: 'var(--danger)' }}>-{deletions}</span>
       </div>
+      <div ref={cardsRef}>
       {commits.map((c) => <CommitCard key={c.sha} commit={c} />)}
+      </div>
     </div>
   )
 }
