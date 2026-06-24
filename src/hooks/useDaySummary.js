@@ -16,10 +16,14 @@ export const useDaySummary = (dayData, enabled = false) => {
     setIsLoading(true)
 
     summarizeDay(dayData).then(result => {
+      console.debug('[useDaySummary]', dayData.date, '→', result.source)
       if (!cancelled) {
         setSummary(result)
         setIsLoading(false)
       }
+    }).catch(err => {
+      console.error('[useDaySummary] summarizeDay failed:', err.message)
+      if (!cancelled) setIsLoading(false)
     })
 
     return () => { cancelled = true }
