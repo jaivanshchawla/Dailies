@@ -44,13 +44,20 @@ export const buildLogContent = (commits, date) => {
 }
 
 export const runAutoCommit = async (commits) => {
-  if (!shouldAutoCommit()) return
+  if (!shouldAutoCommit()) {
+    console.debug('[autoCommit] already committed today, skipping')
+    return
+  }
   const token = getToken()
   const username = getUsername()
-  if (!token || !username) return
+  if (!token || !username) {
+    console.debug('[autoCommit] missing token or username, skipping')
+    return
+  }
 
   const today = new Date().toISOString().slice(0, 10)
-  const todayCommits = commits.filter(c => c.date.slice(0, 10) === today)
+  const todayCommits = Array.isArray(commits) ? commits.filter(c => c.date?.slice(0, 10) === today) : []
+  console.debug('[autoCommit] today has', todayCommits.length, 'commits')
 
   const path = `logs/${today}.md`
   const content = buildLogContent(todayCommits, today)
