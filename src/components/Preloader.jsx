@@ -1,24 +1,30 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { AppleHelloEffectHindi } from './AppleHelloEffectHindi'
 
-export default function Preloader({ isComplete, onDone }) {
+export default function Preloader({ isComplete, dataReady, onDone }) {
   const textRef = useRef(null)
   const overlayRef = useRef(null)
   const tlRef = useRef(null)
+  const [animationDone, setAnimationDone] = useState(false)
 
+  // Start exit animation only when token is ready
   useEffect(() => {
     if (!isComplete || tlRef.current) return
 
     // Safety: if refs are null (unmounted), skip animation
     if (!textRef.current || !overlayRef.current) {
       console.debug('[Preloader] refs null, skipping animation')
-      onDone?.()
+      setAnimationDone(true)
       return
     }
 
+    console.debug('[Preloader] token ready, starting exit animation')
     tlRef.current = gsap.timeline({
-      onComplete: () => onDone?.(),
+      onComplete: () => {
+        console.debug('[Preloader] exit animation complete')
+        setAnimationDone(true)
+      },
     })
 
     tlRef.current
@@ -46,6 +52,14 @@ export default function Preloader({ isComplete, onDone }) {
       }
     }
   }, [isComplete])
+
+  // Dismiss only when BOTH animation and data are ready
+  useEffect(() => {
+    if (animationDone && dataReady) {
+      console.debug('[Preloader] animation + data ready → dismissing')
+      onDone?.()
+    }
+  }, [animationDone, dataReady])
 
   return (
     <div
