@@ -68,14 +68,15 @@ const AnimatedNumber = ({ value, style }) => {
 }
 
 export default function StatsBar({ commits }) {
+  const safeCommits = Array.isArray(commits) ? commits : []
   const now = new Date()
   const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000)
-  const thisWeek = commits.filter(c => new Date(c.date) >= weekAgo)
+  const thisWeek = safeCommits.filter(c => new Date(c.date) >= weekAgo)
   const additions = thisWeek.reduce((s, c) => s + (c.additions ?? 0), 0)
   const deletions = thisWeek.reduce((s, c) => s + (c.deletions ?? 0), 0)
 
   // Streak — consecutive days with commits up to today
-  const daySet = new Set(commits.map(c => c.date?.slice(0, 10)))
+  const daySet = new Set(safeCommits.map(c => c.date?.slice(0, 10)))
   let streak = 0
   let cursor = new Date()
   cursor.setHours(0, 0, 0, 0)
@@ -113,7 +114,7 @@ export default function StatsBar({ commits }) {
 
       {/* Center — sparkline */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-        <Sparkline commits={commits} />
+        <Sparkline commits={safeCommits} />
         <span style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.03em' }}>
           14 days
         </span>
