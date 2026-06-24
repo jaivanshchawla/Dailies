@@ -12,7 +12,7 @@ import { useGitHubRepos } from '../hooks/useGitHubRepos'
 import { useAllCommits } from '../hooks/useAllCommits'
 import { runAutoCommit } from '../lib/autoCommit'
 
-export default function FeedLayout() {
+export default function FeedLayout({ onDataLoaded }) {
   const [view, setView] = useState('log')
   const [activeRepos, setActiveRepos] = useState([])
   const [authorFilter, setAuthorFilter] = useState('all')
@@ -20,10 +20,19 @@ export default function FeedLayout() {
   const { data: repos = [] } = useGitHubRepos()
   const { commits, isLoading } = useAllCommits(repos)
   const hasAutoCommitted = useRef(false)
+  const hasReportedLoaded = useRef(false)
   const headerRef = useRef(null)
   const statsRef = useRef(null)
   const controlsRef = useRef(null)
   const feedRef = useRef(null)
+
+  useEffect(() => {
+    if (!isLoading && repos.length > 0 && !hasReportedLoaded.current) {
+      hasReportedLoaded.current = true
+      console.debug('[FeedLayout] data loaded, reporting to AuthGate')
+      onDataLoaded?.()
+    }
+  }, [isLoading, repos.length])
 
   useEffect(() => {
     if (!isLoading && commits.length > 0 && !hasAutoCommitted.current) {
