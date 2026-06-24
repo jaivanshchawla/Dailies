@@ -116,14 +116,34 @@ export default function FeedLayout({ onDataLoaded }) {
       </div>
       </div>
       <div ref={feedRef}>
-      {isLoading ? (
+      {isLoading && filteredCommits.length === 0 ? (
         <div>
           {[1, 2, 3, 4, 5].map(i => <SkeletonCard key={i} />)}
         </div>
-      ) : view === 'log' ? (
-        <CommitFeed commits={filteredCommits} />
       ) : (
-        <SummaryFeed commits={filteredCommits} />
+        <>
+          {isLoading && filteredCommits.length > 0 && (
+            <div style={{
+              padding: '8px 12px', marginBottom: '12px',
+              borderRadius: '8px', background: 'var(--glass-bg)',
+              border: '1px solid var(--glass-border)',
+              fontSize: '12px', color: 'var(--text-muted)',
+              display: 'flex', alignItems: 'center', gap: '8px',
+            }}>
+              <div style={{
+                width: '10px', height: '10px', borderRadius: '50%',
+                border: '1.5px solid var(--accent)', borderTopColor: 'transparent',
+                animation: 'spin 0.8s linear infinite', flexShrink: 0
+              }} />
+              Loading more repos…
+            </div>
+          )}
+          {view === 'log' ? (
+            <CommitFeed commits={filteredCommits} />
+          ) : (
+            <SummaryFeed commits={filteredCommits} />
+          )}
+        </>
       )}
       </div>
     </div>
