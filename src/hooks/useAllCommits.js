@@ -40,7 +40,6 @@ export const useAllCommits = (repos = []) => {
         return commits.map((c) => normalise(c, repo.name, repo.private))
       },
       enabled: repos.length > 0 && !!username && !!localStorage.getItem('dailies_pat'),
-      staleTime: 5 * 60 * 1000,
     })),
   })
 
