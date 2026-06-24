@@ -3,7 +3,8 @@ import SummaryCard from './SummaryCard'
 import { groupByDay } from '../lib/groupByDay'
 
 export default function SummaryFeed({ commits }) {
-  const grouped = groupByDay(commits)
+  const safeCommits = Array.isArray(commits) ? commits : []
+  const grouped = groupByDay(safeCommits)
 
   // Generate last 30 days
   const allDays = Array.from({ length: 30 }, (_, i) => {
