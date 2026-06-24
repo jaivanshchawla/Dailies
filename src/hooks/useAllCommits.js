@@ -69,9 +69,22 @@ export const useAllCommits = (repos = []) => {
 
   const isLoading = results.some((r) => r.isLoading)
   const isError = results.some((r) => r.isError)
+
   const commits = results
-    .flatMap((r) => r.data ?? [])
+    .flatMap((r) => (Array.isArray(r.data) ? r.data : []))
+    .filter(Boolean)
     .sort((a, b) => (a.date > b.date ? -1 : 1))
+
+  if (isError) {
+    const failedRepos = results.filter(r => r.isError).map(r => r.error?.message ?? 'unknown')
+    console.error('[useAllCommits] query errors:', failedRepos)
+  }
+
+  if (!isLoading && commits.length === 0 && repos.length > 0) {
+    console.warn('[useAllCommits] no commits returned from', repos.length, 'repos')
+  }
+
+  console.debug('[useAllCommits] commits:', commits.length, 'repos:', repos.length, 'loading:', isLoading)
 
   return { commits, isLoading, isError }
 }
