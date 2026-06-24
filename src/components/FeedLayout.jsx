@@ -39,7 +39,7 @@ export default function FeedLayout() {
     if (!sections.length) return
 
     gsap.set(sections, { opacity: 0, y: 24 })
-    const tweens = gsap.to(sections, {
+    const tween = gsap.to(sections, {
       opacity: 1,
       y: 0,
       duration: 0.55,
@@ -47,18 +47,27 @@ export default function FeedLayout() {
       stagger: 0.08,
     })
 
-    return () => tweens.forEach(t => t.kill())
+    return () => {
+      console.debug('[FeedLayout] killing entrance animations on unmount')
+      tween.kill()
+    }
   }, [isLoading])
 
-  const filteredCommits = useMemo(() => commits
-    .filter(c => activeRepos.length === 0 || activeRepos.includes(c.repo))
-    .filter(c => {
-      if (authorFilter === 'me') return !c.isAgent
-      if (authorFilter === 'agent') return c.isAgent
-      return true
-    }), [commits, activeRepos, authorFilter])
+  const filteredCommits = useMemo(() => {
+    const safe = Array.isArray(commits) ? commits : []
+    return safe
+      .filter(c => activeRepos.length === 0 || activeRepos.includes(c.repo))
+      .filter(c => {
+        if (authorFilter === 'me') return !c.isAgent
+        if (authorFilter === 'agent') return c.isAgent
+        return true
+      })
+  }, [commits, activeRepos, authorFilter])
 
-  const repoNames = useMemo(() => [...new Set(commits.map(c => c.repo))], [commits])
+  const repoNames = useMemo(() => {
+    const safe = Array.isArray(commits) ? commits : []
+    return [...new Set(safe.map(c => c.repo))]
+  }, [commits])
 
   const onRepoToggle = useCallback((repo) => {
     if (repo === 'all') return setActiveRepos([])
