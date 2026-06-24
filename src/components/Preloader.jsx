@@ -6,11 +6,17 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
   const textRef = useRef(null)
   const overlayRef = useRef(null)
   const tlRef = useRef(null)
+  const [introComplete, setIntroComplete] = useState(false)
   const [animationDone, setAnimationDone] = useState(false)
 
-  // Start exit animation only when token is ready
+  const handleIntroComplete = () => {
+    console.debug('[Preloader] intro animation complete')
+    setIntroComplete(true)
+  }
+
+  // Start GSAP exit animation only when BOTH token is ready AND intro animation finished
   useEffect(() => {
-    if (!isComplete || tlRef.current) return
+    if (!isComplete || !introComplete || tlRef.current) return
 
     // Safety: if refs are null (unmounted), skip animation
     if (!textRef.current || !overlayRef.current) {
@@ -19,7 +25,7 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
       return
     }
 
-    console.debug('[Preloader] token ready, starting exit animation')
+    console.debug('[Preloader] token + intro ready, starting exit animation')
     tlRef.current = gsap.timeline({
       onComplete: () => {
         console.debug('[Preloader] exit animation complete')
@@ -51,12 +57,12 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
         tlRef.current = null
       }
     }
-  }, [isComplete])
+  }, [isComplete, introComplete])
 
-  // Dismiss only when BOTH animation and data are ready
+  // Dismiss only when BOTH exit animation and data are ready
   useEffect(() => {
     if (animationDone && dataReady) {
-      console.debug('[Preloader] animation + data ready → dismissing')
+      console.debug('[Preloader] exit animation + data ready → dismissing')
       onDone?.()
     }
   }, [animationDone, dataReady])
@@ -77,6 +83,7 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
       <div ref={textRef}>
         <AppleHelloEffectHindi
           durationScale={1}
+          onAnimationComplete={handleIntroComplete}
           style={{
             width: 'min(80vw, 400px)',
             height: 'auto',
