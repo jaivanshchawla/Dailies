@@ -1,11 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useGitHubTokenSync } from '../hooks/useGitHubTokenSync'
 import FeedLayout from './FeedLayout'
 import Preloader from './Preloader'
 
 export default function AuthGate() {
   const { ready, error } = useGitHubTokenSync()
-  const [showPreloader, setShowPreloader] = useState(true)
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [preloaderDone, setPreloaderDone] = useState(false)
+
+  const handleDataLoaded = useCallback(() => {
+    console.debug('[AuthGate] data loaded, preloader can dismiss')
+    setDataLoaded(true)
+  }, [])
 
   if (error) {
     return (
@@ -49,8 +55,16 @@ export default function AuthGate() {
 
   return (
     <>
-      {showPreloader && <Preloader isComplete={ready} onDone={() => setShowPreloader(false)} />}
-      {!showPreloader && <FeedLayout />}
+      {/* Preloader overlays on top — z-index 9999 */}
+      {!preloaderDone && (
+        <Preloader
+          isComplete={ready}
+          dataReady={dataLoaded}
+          onDone={() => setPreloaderDone(true)}
+        />
+      )}
+      {/* FeedLayout always mounts so data hooks fire immediately */}
+      <FeedLayout onDataLoaded={handleDataLoaded} />
     </>
   )
 }
