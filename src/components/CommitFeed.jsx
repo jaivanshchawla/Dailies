@@ -30,7 +30,9 @@ const EmptyDay = ({ date }) => {
 }
 
 export default function CommitFeed({ commits }) {
-  if (commits.length === 0) {
+  const safeCommits = Array.isArray(commits) ? commits : []
+
+  if (safeCommits.length === 0) {
     return (
       <div>
         <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '40px', textAlign: 'center' }}>
@@ -40,16 +42,17 @@ export default function CommitFeed({ commits }) {
     )
   }
 
-  const grouped = groupByDay(commits)
+  const grouped = groupByDay(safeCommits)
   const keys = sortedDayKeys(grouped)
 
   // Compute busiest day's LOC for relative activity bars
-  const maxDayLOC = Math.max(
+  const maxDayLOC = keys.length > 0 ? Math.max(
     ...keys.map(day =>
-      grouped[day].reduce((s, c) => s + (c.additions ?? 0) + (c.deletions ?? 0), 0)
+      (Array.isArray(grouped[day]) ? grouped[day] : [])
+        .reduce((s, c) => s + (c?.additions ?? 0) + (c?.deletions ?? 0), 0)
     ),
     1
-  )
+  ) : 1
 
   // Generate last 7 days for empty day fill
   const last7Days = Array.from({ length: 7 }, (_, i) => {
