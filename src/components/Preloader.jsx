@@ -5,22 +5,29 @@ import { AppleHelloEffectHindi } from './AppleHelloEffectHindi'
 export default function Preloader({ isComplete, onDone }) {
   const textRef = useRef(null)
   const overlayRef = useRef(null)
-  const hasAnimated = useRef(false)
+  const tlRef = useRef(null)
 
   useEffect(() => {
-    if (!isComplete || hasAnimated.current) return
-    hasAnimated.current = true
+    if (!isComplete || tlRef.current) return
 
-    const tl = gsap.timeline({
+    // Safety: if refs are null (unmounted), skip animation
+    if (!textRef.current || !overlayRef.current) {
+      console.debug('[Preloader] refs null, skipping animation')
+      onDone?.()
+      return
+    }
+
+    tlRef.current = gsap.timeline({
       onComplete: () => onDone?.(),
     })
 
-    tl.to(textRef.current, {
-      scale: 1.08,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.in',
-    })
+    tlRef.current
+      .to(textRef.current, {
+        scale: 1.08,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.in',
+      })
       .to(
         overlayRef.current,
         {
@@ -31,7 +38,13 @@ export default function Preloader({ isComplete, onDone }) {
         '-=0.15'
       )
 
-    return () => tl.kill()
+    return () => {
+      if (tlRef.current) {
+        console.debug('[Preloader] killing GSAP timeline on unmount')
+        tlRef.current.kill()
+        tlRef.current = null
+      }
+    }
   }, [isComplete])
 
   return (
