@@ -9,50 +9,40 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
   const [introComplete, setIntroComplete] = useState(false)
   const [animationDone, setAnimationDone] = useState(false)
 
-  const handleIntroComplete = () => {
-    console.debug('[Preloader] intro animation complete')
-    setIntroComplete(true)
-  }
+  const handleIntroComplete = () => setIntroComplete(true)
 
   // Start GSAP exit animation only when BOTH token is ready AND intro animation finished
   useEffect(() => {
     if (!isComplete || !introComplete || tlRef.current) return
 
-    // Safety: if refs are null (unmounted), skip animation
     if (!textRef.current || !overlayRef.current) {
-      console.debug('[Preloader] refs null, skipping animation')
       setAnimationDone(true)
       return
     }
 
-    console.debug('[Preloader] token + intro ready, starting exit animation')
     tlRef.current = gsap.timeline({
-      onComplete: () => {
-        console.debug('[Preloader] exit animation complete')
-        setAnimationDone(true)
-      },
+      onComplete: () => setAnimationDone(true),
     })
 
     tlRef.current
       .to(textRef.current, {
-        scale: 1.08,
+        scale: 1.06,
         opacity: 0,
-        duration: 0.6,
+        duration: 0.45,
         ease: 'power2.in',
       })
       .to(
         overlayRef.current,
         {
           yPercent: -100,
-          duration: 0.75,
-          ease: 'power4.inOut',
+          duration: 0.55,
+          ease: 'power3.inOut',
         },
         '-=0.15'
       )
 
     return () => {
       if (tlRef.current) {
-        console.debug('[Preloader] killing GSAP timeline on unmount')
         tlRef.current.kill()
         tlRef.current = null
       }
@@ -62,14 +52,14 @@ export default function Preloader({ isComplete, dataReady, onDone }) {
   // Dismiss only when BOTH exit animation and data are ready
   useEffect(() => {
     if (animationDone && dataReady) {
-      console.debug('[Preloader] exit animation + data ready → dismissing')
       onDone?.()
     }
-  }, [animationDone, dataReady])
+  }, [animationDone, dataReady, onDone])
 
   return (
     <div
       ref={overlayRef}
+      className="will-change-transform"
       style={{
         position: 'fixed',
         inset: 0,
