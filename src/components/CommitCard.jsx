@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 const timeAgo = (dateStr) => {
   const diff = Date.now() - new Date(dateStr)
@@ -37,7 +37,7 @@ const LOCBar = ({ additions, deletions }) => {
   )
 }
 
-export default function CommitCard({ commit }) {
+export default memo(function CommitCard({ commit }) {
   return (
     <div
       className="commit-card glass-panel"
@@ -45,14 +45,7 @@ export default function CommitCard({ commit }) {
         padding: '14px 16px',
         marginBottom: '8px',
         borderLeft: commit.isAgent ? '2px solid rgba(247, 111, 111, 0.35)' : '2px solid transparent',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         cursor: 'default',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-1px)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)'
       }}
     >
       {/* Top row — repo + author pill */}
@@ -108,4 +101,4 @@ export default function CommitCard({ commit }) {
       </div>
     </div>
   )
-}
+})
