@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import DayGroup from './DayGroup'
 import { groupByDay, sortedDayKeys } from '../lib/groupByDay'
 
@@ -32,6 +32,26 @@ const EmptyDay = ({ date }) => {
 export default function CommitFeed({ commits }) {
   const safeCommits = Array.isArray(commits) ? commits : []
 
+  const { grouped, keys, maxDayLOC, allKeys } = useMemo(() => {
+    if (safeCommits.length === 0) return { grouped: {}, keys: [], maxDayLOC: 1, allKeys: [] }
+    const g = groupByDay(safeCommits)
+    const k = sortedDayKeys(g)
+    const max = k.length > 0 ? Math.max(
+      ...k.map(day =>
+        (Array.isArray(g[day]) ? g[day] : [])
+          .reduce((s, c) => s + (c?.additions ?? 0) + (c?.deletions ?? 0), 0)
+      ),
+      1
+    ) : 1
+    const last7 = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      return d.toISOString().slice(0, 10)
+    })
+    const all = [...new Set([...k, ...last7.filter(d => !k.includes(d))])].sort().reverse()
+    return { grouped: g, keys: k, maxDayLOC: max, allKeys: all }
+  }, [safeCommits])
+
   if (safeCommits.length === 0) {
     return (
       <div>
@@ -41,27 +61,6 @@ export default function CommitFeed({ commits }) {
       </div>
     )
   }
-
-  const grouped = groupByDay(safeCommits)
-  const keys = sortedDayKeys(grouped)
-
-  // Compute busiest day's LOC for relative activity bars
-  const maxDayLOC = keys.length > 0 ? Math.max(
-    ...keys.map(day =>
-      (Array.isArray(grouped[day]) ? grouped[day] : [])
-        .reduce((s, c) => s + (c?.additions ?? 0) + (c?.deletions ?? 0), 0)
-    ),
-    1
-  ) : 1
-
-  // Generate last 7 days for empty day fill
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
-    return d.toISOString().slice(0, 10)
-  })
-
-  const allKeys = [...new Set([...keys, ...last7Days.filter(d => !keys.includes(d))])].sort().reverse()
 
   return (
     <div>
