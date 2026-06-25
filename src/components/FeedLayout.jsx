@@ -29,7 +29,6 @@ export default function FeedLayout({ onDataLoaded }) {
   useEffect(() => {
     if (!isLoading && repos.length > 0 && !hasReportedLoaded.current) {
       hasReportedLoaded.current = true
-      console.debug('[FeedLayout] data loaded, reporting to AuthGate')
       onDataLoaded?.()
     }
   }, [isLoading, repos.length])
@@ -41,25 +40,25 @@ export default function FeedLayout({ onDataLoaded }) {
     }
   }, [isLoading, commits])
 
+  const entrancePlayedRef = useRef(false)
+
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || entrancePlayedRef.current) return
 
     const sections = [headerRef.current, statsRef.current, controlsRef.current, feedRef.current].filter(Boolean)
     if (!sections.length) return
 
-    gsap.set(sections, { opacity: 0, y: 24 })
+    entrancePlayedRef.current = true
+    gsap.set(sections, { opacity: 0, y: 20 })
     const tween = gsap.to(sections, {
       opacity: 1,
       y: 0,
-      duration: 0.55,
+      duration: 0.45,
       ease: 'power3.out',
-      stagger: 0.08,
+      stagger: 0.06,
     })
 
-    return () => {
-      console.debug('[FeedLayout] killing entrance animations on unmount')
-      tween.kill()
-    }
+    return () => tween.kill()
   }, [isLoading])
 
   const filteredCommits = useMemo(() => {
