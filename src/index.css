@@ -7,6 +7,13 @@
   --radius: 16px;
 }
 
+/* Performance: GPU-accelerated layers */
+.will-change-transform { will-change: transform; transform: translateZ(0); }
+.will-change-opacity { will-change: opacity; }
+
+/* Contain layout/paint for isolated cards */
+.contain-card { contain: layout style paint; }
+
 /* Dark theme (default) */
 :root,
 [data-theme='dark'] {
@@ -96,29 +103,50 @@ body {
 }
 
 @keyframes float1 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(40px, 30px); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(40px, 30px, 0); }
 }
 @keyframes float2 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-30px, 40px); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-30px, 40px, 0); }
 }
 
-/* Core glass surface */
+/* Disable expensive blob animations on mobile / reduced-motion */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .app-background::before,
+  .app-background::after,
+  .app-background .blob-3 {
+    animation: none !important;
+  }
+  .app-background::before { filter: blur(60px); opacity: 0.35; }
+  .app-background::after { filter: blur(60px); opacity: 0.35; }
+  .app-background .blob-3 { filter: blur(60px); opacity: 0.35; }
+}
+
+/* Commit card hover transition via CSS only (no JS) */
+.commit-card {
+  contain: layout style paint;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.commit-card:hover {
+  transform: translateY(-1px);
+}
+
+/* Core glass surface — reduced blur for GPU perf */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   box-shadow: var(--glass-shadow);
-  transition: background 0.3s ease, border 0.3s ease, transform 0.15s ease;
+  transition: background 0.3s ease, border 0.3s ease;
 }
 
 .glass-panel-strong {
   background: var(--glass-bg-strong);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   box-shadow: var(--glass-shadow);
@@ -126,11 +154,11 @@ body {
 
 .glass-pill {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  transition: background 0.2s ease, border 0.2s ease, transform 0.15s ease;
+  transition: background 0.2s ease, border 0.2s ease;
 }
 
 .glass-pill:hover {
@@ -170,4 +198,11 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Reduce blur on mobile for GPU performance */
+@media (max-width: 640px) {
+  .glass-panel { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .glass-panel-strong { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .glass-pill { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 }
