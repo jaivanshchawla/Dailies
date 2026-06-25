@@ -33,10 +33,8 @@ export const useAllCommits = (repos = []) => {
         )
 
         const ms = Math.round(performance.now() - t0)
-        console.debug(`[useAllCommits] ${repo.name}: fetched ${commits.length} commits in ${ms}ms`)
+        if (ms > 500) console.debug(`[useAllCommits] ${repo.name}: ${commits.length} commits in ${ms}ms`)
 
-        // Use list endpoint stats directly — no per-commit enrichment needed
-        // The list endpoint already includes stats.additions/deletions for most commits
         return commits.map((c) => normalise(c, repo.name, repo.private))
       },
       enabled: repos.length > 0 && !!username && !!localStorage.getItem('dailies_pat'),
@@ -49,18 +47,12 @@ export const useAllCommits = (repos = []) => {
   const commits = results
     .flatMap((r) => (Array.isArray(r.data) ? r.data : []))
     .filter(Boolean)
-    .sort((a, b) => (a.date > b.date ? -1 : 1))
+    .sort((a, b) => (a.date > b.date ? -1 : a.date < b.date ? 1 : 0))
 
   if (isError) {
     const failedRepos = results.filter(r => r.isError).map(r => r.error?.message ?? 'unknown')
     console.error('[useAllCommits] query errors:', failedRepos)
   }
-
-  if (!isLoading && commits.length === 0 && repos.length > 0) {
-    console.warn('[useAllCommits] no commits returned from', repos.length, 'repos')
-  }
-
-  console.debug('[useAllCommits] commits:', commits.length, 'repos:', repos.length, 'loading:', isLoading)
 
   return { commits, isLoading, isError }
 }
