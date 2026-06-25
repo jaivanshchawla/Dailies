@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, memo } from 'react'
 import { gsap } from 'gsap'
 import CommitCard from './CommitCard'
 
@@ -11,23 +11,25 @@ const formatDate = (dateStr) => {
   return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
-export default function DayGroup({ date, commits, maxDayLOC = 1 }) {
+export default memo(function DayGroup({ date, commits, maxDayLOC = 1 }) {
   const cardsRef = useRef(null)
+  const animatedRef = useRef(false)
 
   useEffect(() => {
-    if (!cardsRef.current) return
+    if (!cardsRef.current || animatedRef.current) return
     const cards = cardsRef.current.querySelectorAll('.commit-card')
     if (!cards.length) return
+    animatedRef.current = true
     const tween = gsap.from(cards, {
       opacity: 0,
-      y: 16,
-      duration: 0.4,
+      y: 12,
+      duration: 0.35,
       ease: 'power2.out',
-      stagger: 0.05,
+      stagger: 0.04,
       clearProps: 'all',
     })
     return () => tween.kill()
-  }, [commits])
+  }, [commits.length])
 
   const additions = commits.reduce((s, c) => s + (c.additions ?? 0), 0)
   const deletions = commits.reduce((s, c) => s + (c.deletions ?? 0), 0)
@@ -42,8 +44,8 @@ export default function DayGroup({ date, commits, maxDayLOC = 1 }) {
         position: 'sticky', top: '0', zIndex: 2,
         padding: '8px 0 10px', marginBottom: '8px',
         background: 'transparent',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
       }}>
         <div style={{
           display: 'flex', alignItems: 'center',
@@ -103,4 +105,4 @@ export default function DayGroup({ date, commits, maxDayLOC = 1 }) {
       )}
     </div>
   )
-}
+})
