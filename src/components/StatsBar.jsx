@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useMemo, memo } from 'react'
 import { gsap } from 'gsap'
 
-const Sparkline = ({ commits }) => {
+const Sparkline = memo(function Sparkline({ commits }) {
   // Build 14-day buckets
   const days = Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
@@ -43,7 +43,7 @@ const Sparkline = ({ commits }) => {
       })}
     </svg>
   )
-}
+})
 
 const AnimatedNumber = ({ value, style }) => {
   const ref = useRef(null)
@@ -68,30 +68,36 @@ const AnimatedNumber = ({ value, style }) => {
 }
 
 export default function StatsBar({ commits }) {
-  const safeCommits = Array.isArray(commits) ? commits : []
-  const now = new Date()
-  const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000)
-  const thisWeek = safeCommits.filter(c => new Date(c.date) >= weekAgo)
-  const additions = thisWeek.reduce((s, c) => s + (c.additions ?? 0), 0)
-  const deletions = thisWeek.reduce((s, c) => s + (c.deletions ?? 0), 0)
+  const safeCommits = useMemo(() => Array.isArray(commits) ? commits : [], [commits])
 
-  // Streak — consecutive days with commits up to today
-  const daySet = new Set(safeCommits.map(c => c.date?.slice(0, 10)))
-  let streak = 0
-  let cursor = new Date()
-  cursor.setHours(0, 0, 0, 0)
-  for (let i = 0; i < 90; i++) {
+  const thisWeek = useMemo(() => {
+    const weekAgo = Date.now() - 7 * 86400000
+    return safeCommits.filter(c => new Date(c.date).getTime() >= weekAgo)
+  }, [safeCommits])
+
+  const additions = useMemo(() => thisWeek.reduce((s, c) => s + (c.additions ?? 0), 0), [thisWeek])
+  const deletions = useMemo(() => thisWeek.reduce((s, c) => s + (c.deletions ?? 0), 0), [thisWeek])
+
+  // Streak — consecutive days with commits up to today (memoized)
+  const streak = useMemo(() => {
+    const daySet = new Set(safeCommits.map(c => c.date?.slice(0, 10)))
+    let count = 0
+    const cursor = new Date()
+    cursor.setHours(0, 0, 0, 0)
     const y = cursor.getFullYear()
-    const m = String(cursor.getMonth() + 1).padStart(2, '0')
-    const d = String(cursor.getDate()).padStart(2, '0')
-    const dateStr = `${y}-${m}-${d}`
-    if (daySet.has(dateStr)) {
-      streak++
-    } else if (i > 0) {
-      break
+    const m = cursor.getMonth()
+    const d = cursor.getDate()
+    for (let i = 0; i < 90; i++) {
+      const ts = new Date(y, m, d - i)
+      const dateStr = ts.getFullYear() + '-' + String(ts.getMonth() + 1).padStart(2, '0') + '-' + String(ts.getDate()).padStart(2, '0')
+      if (daySet.has(dateStr)) {
+        count++
+      } else if (i > 0) {
+        break
+      }
     }
-    cursor.setDate(cursor.getDate() - 1)
-  }
+    return count
+  }, [safeCommits])
 
   const monoStyle = { fontFamily: 'JetBrains Mono, monospace' }
 
